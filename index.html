@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BF6 Legacy Medal Prototype</title>
+    <style>
+        /* --- 1. CSS: THE SKIN (STYLING & ANIMATION) --- */
+        :root {
+            --glow-color: rgba(26, 223, 26, 0.767);
+            --locked-color: #444;
+            --earned-color: #26b832;
+        }
+
+        body {
+            background-color: #0b0f12; /* Tactical Dark Theme */
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .dashboard-container {
+            text-align: center;
+            border: 1px solid #333;
+            padding: 40px;
+            background: rgba(20, 25, 30, 0.9);
+        }
+
+        /* The Medal Container */
+        .medal-slot {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .medal-img {
+            width: 120px;
+            height: auto;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            /* Initially "Locked" state */
+            filter: grayscale(100%) brightness(50%);
+            opacity: 0.4;
+        }
+
+        /* The "Earned" State Class (Triggered by JavaScript) */
+        .medal-img.earned {
+            filter: grayscale(0%) brightness(100%);
+            opacity: 1;
+            border-bottom: 2px solid var(--earned-color);
+        }
+
+        /* The Hover Logic: Glow & Scale */
+        .medal-img.earned:hover {
+            transform: scale(1.15);
+            filter: drop-shadow(0 0 20px var(--glow-color));
+        }
+
+        /* Custom Tooltip Logic */
+        .medal-slot::after {
+            content: attr(data-requirement); /* Pulls text from HTML attribute */
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #ccc;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            border: 1px solid var(--glow-color);
+        }
+
+        .medal-slot:hover::after {
+            opacity: 1;
+        }
+
+        /* Layout for the sections */
+.award-section {
+    margin-bottom: 50px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.02); /* Very subtle box around sections */
+    border-radius: 8px;
+}
+
+.section-title {
+    text-align: left;
+    color: #888;
+    font-size: 14px;
+    letter-spacing: 2px;
+    border-left: 3px solid #ffaa00; /* A "Tactical" accent line */
+    padding-left: 15px;
+    margin-bottom: 25px;
+}
+
+/* This makes the medals and badges sit in a clean row */
+.award-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 30px; /* Even spacing between every item */
+}
+
+.section-divider {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(to right, #333, transparent);
+    margin: 40px 0;
+}
+    </style>
+</head>
+<body>
+
+    <div id="login-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+        <h2 style="color:#00d4ff; margin-bottom:20px;">ENTER PSN ID TO SYNC SERVICE RECORD</h2>
+        <input type="text" id="psn-input" placeholder="PlayStation Network ID" style="padding:15px; width:300px; border-radius:5px; border:1px solid #00d4ff; background:#111; color:white; font-size:1.1rem; text-align:center;">
+        <button onclick="startSync()" style="margin-top:20px; padding:10px 40px; background:#00d4ff; color:black; font-weight:bold; cursor:pointer; border:none; border-radius:5px;">SYNC STATS</button>
+        <p id="error-msg" style="color:red; margin-top:15px; display:none;"></p>
+    </div>
+
+    <div class="dashboard-container">
+        <h1>SERVICE RECORD</h1>
+    
+        <!-- SECTION 1: COMBAT BADGES -->
+        <div class="award-section" id="badges-container">
+            <h2 class="section-title">COMBAT BADGES</h2>
+            <div class="award-grid">
+                <!-- Your Badge Blocks Go Here -->
+                <div class="medal-slot" id="badge-assault-basic" data-requirement="BF2 Requirement: 5 Kills in a round as Assault Class">
+                    <span class="badge-count" id="assault-basic-count">0</span> 
+                    <img src="assets/assault_badge.png" class="medal-img" id="assault-badge-img">
+                    <p>Basic Assault Combat</p>
+                </div>
+                <!-- Add more badges here -->
+                <div class="medal-slot" id="badge-engineer-combat" data-requirement="BF2 Requirement: 10 Kills in a round as Engineer Class">
+                    <span class="badge-count" id="engineer-basic-combat-count">0</span> 
+                    <img src="assets/engineer_combat.png" class="medal-img" id="engineer-combat-badge-img">
+                    <p>Basic Engineer Combat</p>
+                </div>
+                <div class="medal-slot" id="badge-engineer-basic" data-requirement="BF2 Requirement: 5 Repair points in a round as Engineer Class">
+                    <span class="badge-count" id="engineer-basic-count">0</span> 
+                    <img src="assets/engineer_basic.png" class="medal-img" id="engineer-basic-badge-img">
+                    <p>Basic Engineer</p>
+                </div>
+                <div class="medal-slot" id="badge-medic-basic" data-requirement="BF2 Requirement: 5 Heal points in a round as Support Class">
+                    <span class="badge-count" id="medic-basic-count">0</span> 
+                    <img src="assets/basic_medic.png" class="medal-img" id="support-badge-img">
+                    <p>Basic First Aid</p>
+                </div>
+                <div class="medal-slot" id="badge-medic-basic-combat" data-requirement="BF2 Requirement: 10 Kills in a round as Support Class">
+                    <span class="badge-count" id="medic-basic-combat-count">0</span> 
+                    <img src="assets/medic_combat.png" class="medal-img" id="medic-badge-img">
+                    <p>Basic Medic Combat</p>
+                </div>
+                <div class="medal-slot" id="badge-class-command" data-requirement="BF2 Requirement: Capture 40 objective points">
+                    <span class="badge-count" id="class-command-count">0</span> 
+                    <img src="assets/basic_command.png" class="medal-img" id="command-badge-img">
+                    <p>Basic Command</p>
+            </div>
+            <div class="medal-slot" id="badge-engineer-basic-tank" data-requirement="BF2 Requirement: Destroy 10 Tanks in a round as Engineer Class">
+                <span class="badge-count" id="engineer-basic-tank-count">0</span> 
+                <img src="assets/anti_tank_badge.png" class="medal-img" id="anti-tank-badge-img">
+                <p>Basic Anti-Tank</p>
+        </div>
+        </div>
+    
+        <hr class="section-divider">
+    
+        <!-- SECTION 2: LEGACY MEDALS -->
+        <div class="award-section" id="medals-container">
+            <h2 class="section-title">LEGACY MEDALS</h2>
+            <div class="award-grid">
+                <!-- Your Medal Blocks Go Here -->
+                <div class="medal-slot" id="medal-infantry" data-requirement="Combat Infantry: 3 Combat Ribbons (Tier 3)">
+                    <img src="assets/infantry_medal.png" class="medal-img" id="infantry-img">
+                    <p>Combat Infantry</p>
+                </div>
+                <!-- Add more medals here -->
+                <!-- use 100 hours played as USMC char as all 3 reqs -->
+                <div class="medal-slot" id="medal-usmc" data-requirement="USMC: 100 Rounds, 100 Hours, 100 Wins as: Cliff, Haz, or Murphy">
+                    <img src="assets/naval_cross.png" class="medal-img" id="naval-cross-img">
+                    <p>Naval Cross</p>
+                </div>
+                <div class="medal-slot" id="medal-mec" data-requirement="MEC: 100 Rounds, 100 Hours, 100 Wins as: Idris, Laila, or Gideon">
+                    <img src="assets/golden_scimitar.png" class="medal-img" id="golden-scimitar-img">
+                    <p>Golden Scimitar</p>
+                </div>
+                <div class="medal-slot" id="medal-pla" data-requirement="PLA: 100 Rounds, 100 Hours, 100 Wins as: Scorcher, Copperpulse, Brazer, or Ibrahim">
+                    <img src="assets/pax_medal.png" class="medal-img" id="pax-medal-img">
+                    <p>People's Medallion</p>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    async function startSync() {
+    const psnId = document.getElementById('psn-input').value.trim();
+    const errorMsg = document.getElementById('error-msg');
+    
+    if (!psnId) {
+        errorMsg.innerText = "Please enter an ID.";
+        errorMsg.style.display = 'block';
+        return;
+    }
+
+    errorMsg.innerText = "Accessing Games-Tools API...";
+    errorMsg.style.display = 'block';
+    errorMsg.style.color = '#00d4ff';
+
+    try {
+        // Updated BF6 Endpoint (2026 Stable version)
+        const response = await fetch(`https://api.gametools.network/bf6/stats/?name=${psnId}&platform=psn`);
+        
+        if (!response.ok) throw new Error("ID not found or Private Profile");
+
+        const data = await response.json();
+        
+        // Success! Hide the overlay and process medals
+        document.getElementById('login-overlay').style.display = 'none';
+        applyStatsToMedals(data);
+
+    } catch (err) {
+        errorMsg.innerText = "Error: " + err.message;
+        errorMsg.style.color = 'red';
+    }
+}
+
+function applyStatsToMedals(data) {
+    // 1. LOG THE DATA: Press F12 in your browser to see the "Raw API Response"
+    console.log("Raw API Response:", data);
+
+    // 2. DATA SOURCE: The API often nests stats in a 'stats' or 'player' object
+    const s = data.stats || data;
+
+    // 3. THE REQS MAP: Updated for BF6 field names
+    const REQS = {
+        // Badges
+        'assault-badge-img': { val: s.assaultKills || s.killsAssault || 0, goal: 5 },
+        'engineer-combat-badge-img': { val: s.engineerKills || s.killsEngineer || 0, goal: 10 },
+        'engineer-basic-badge-img': { val: s.repairs || s.repairCount || 0, goal: 5 },
+        'support-badge-img': { val: s.heals || s.healing || 0, goal: 5 },
+        'medic-badge-img': { val: s.revives || 0, goal: 10 },
+        'command-badge-img': { val: s.objectivesCaptured || s.captures || 0, goal: 40 },
+        'anti-tank-badge-img': { val: s.vehiclesDestroyed || 0, goal: 10 },
+
+        // Medals (Converts Seconds Played to Hours)
+        'infantry-img': { val: s.kills || 0, goal: 1000 },
+        'naval-cross-img': { val: (s.secondsPlayed || 0) / 3600, goal: 100 },
+        'golden-scimitar-img': { val: (s.secondsPlayed || 0) / 3600, goal: 100 },
+        'pax-medal-img': { val: (s.secondsPlayed || 0) / 3600, goal: 100 }
+    };
+
+    // 4. THE UI UPDATE LOOP
+    for (const [id, req] of Object.entries(REQS)) {
+        const img = document.getElementById(id);
+        const countSpan = document.getElementById(id.replace('-img', '-count').replace('-badge-img', '-count'));
+        
+        // Update the numbers in your HTML
+        if (countSpan) {
+            countSpan.innerText = Math.floor(req.val);
+        }
+
+        // Apply the CSS Glow/Color
+        if (img && req.val >= req.goal) {
+            img.classList.add('earned');
+            console.log(`UNLOCKED: ${id}`);
+        }
+    }
+}
+    </script>
+
+</body>
+</html>

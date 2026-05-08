@@ -283,75 +283,47 @@
     }
 }
 
-function applyStatsToMedals(data) {
-    const profile = data.playerProfiles[0];
-    // REPLACEMENT CODE
+function applyStatsToMedals(s) {
+    if (!s) return;
+
+    // 1. DATA MAPPING
+    const REQS = {
+        'expl-ord-badge-img': { val_kills: s.kills_explosive_inround_cb, val_dmg: s.dmg_explosive_inround_cb, isTiered: true },
+        'assault-badge-img': { 
+            val_kills: Number(s.kills_assault_inround_cb) || 0, 
+            val_time: (Number(s.tp_kit_assault) || 0) / 3600, 
+            isTiered: true 
+        },
+        'ribbon-logistics-img': { val: s.resupplies_inround_cb, goal: 50 },
+        'ribbon-intel-img': { val: s.spots_inround_cb, goal: 100 },
+        'ribbon-revive-img': { val: s.revives_inround_cb, goal: 15 }
+    };
+
+    // 2. PLAYER HEADER & PROGRESS BAR SYNC
     const header = document.getElementById('player-header');
     if (header && s) {
         header.style.display = 'block';
         
-        // 1. Basic Info
         document.getElementById('display-name').innerText = s.userName || "SOLDIER";
         document.getElementById('player-rank').innerText = s.rankName || "RECRUIT";
         document.getElementById('player-level').innerText = s.rank || "0";
 
-        // 2. XP Math for Progress Bar
         const currentXP = Number(s.currentXp) || 0;
         const levelStartXP = Number(s.levelXp) || 0;
         const nextLevelXP = Number(s.nextLevelXp) || 1;
-
-        // Calculate %: (Current - Start) / (Target - Start)
         const progress = ((currentXP - levelStartXP) / (nextLevelXP - levelStartXP)) * 100;
-        const clampedProgress = Math.max(0, Math.min(100, progress));
 
-        // 3. Update the Bar and the Number
         const bar = document.getElementById('level-bar');
         const percentText = document.getElementById('progress-percent');
-
         if (bar && percentText) {
-            bar.style.width = clampedProgress + "%";
-            percentText.innerText = Math.floor(clampedProgress) + "%";
+            bar.style.width = Math.max(0, Math.min(100, progress)) + "%";
+            percentText.innerText = Math.floor(Math.max(0, Math.min(100, progress))) + "%";
         }
-    }
+    } // <--- ONLY ONE bracket here!
 
-    // 2. CONVERT THE ARRAY INTO A SEARCHABLE MAP
-    // This turns the long list into a quick-reference "dictionary"
-    const s = {};
-    profile.stats.forEach(item => {
-        s[item.name] = item.value;
-    });
-
-    // 3. THE UPDATED REQS MAP (Using your exact JSON field names)
-    const REQS = {
-        'assault-badge-img': { 
-            val_kills: s.kills_assault_inround_cb || 0,
-            val_time: (s.tp_kit_assault || 0) / 3600, // Converts seconds to hours
-            isTiered: true 
-        },
-        'engineer-combat-badge-img': { val: s.kills_engineer_inround_cb || 0, goal: 10 },
-        'engineer-basic-badge-img': { val: s.assists_repair_inround_cb || 0, goal: 5 },
-        'support-badge-img': { val: s.revives_inround_cb || 0, goal: 5 },
-        'medic-badge-img': { val: s.kills_support_inround_cb || 0, goal: 10 },
-        'vet-medic-badge-img': { val: s.kills_support_inround_cb || 0, goal: 20 },
-        'command-badge-img': { val: s.cap_obj_inround_cb || 0, goal: 40 },
-        'anti-tank-badge-img': { val: s.destroy_heav_veh_inround_cb || 0, goal: 10 },
-        'expl-ord-badge-img': { 
-         val_kills: (s.kills_grenade_inround_cb || 0) + (s.Kills_GLaunchers_Assault_InRound_cb || 0),
-         val_dmg: (s.dmg_toveh_eng_lanch_inround_cb || 0) + (s.dmg_toveh_eng_mines_inround_cb || 0),
-         isTiered: true // Custom flag for our logic below
-        },
-        'infantry-img': { 
-         val: ((s.tp_kit_assault || 0) + (s.tp_kit_support || 0) + (s.tp_kit_engineer || 0) + (s.tp_kit_recon || 0)) / 3600, 
-         goal: 200 
-        },
-        'naval-cross-img': { val: (s.tp_kit_assault || 0) / 3600, goal: 100 },
-        'golden-scimitar-img': { val: (s.tp_kit_support || 0) / 3600, goal: 100 },
-        'pax-medal-img': { val: (s.tp_kit_recon || 0) / 3600, goal: 100 }
-        };
-        
-
-    // 4. UI UPDATE LOOP
+    // 3. UI UPDATE LOOP
     for (const [id, req] of Object.entries(REQS)) {
+        // ... the rest of your medal logic
         const img = document.getElementById(id);
         if (!img) continue;
 

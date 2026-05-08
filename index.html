@@ -172,16 +172,21 @@
                     <img src="assets/medic_combat.png" class="medal-img" id="medic-badge-img">
                     <p>Basic Medic Combat</p>
                 </div>
+                <div class="medal-slot" id="badge-medic-vet-combat" data-requirement="BF2 Requirement: 20 Kills in a round as Support Class">
+                    <span class="badge-count" id="vet-medic-count">0</span> 
+                    <img src="assets/vet_med_combat.png" class="medal-img" id="vet-medic-badge-img">
+                    <p>Veteran Medic Combat</p>
+                </div>
                 <div class="medal-slot" id="badge-class-command" data-requirement="BF2 Requirement: Capture 40 objective points">
                     <span class="badge-count" id="command-count">0</span> 
                     <img src="assets/basic_command.png" class="medal-img" id="command-badge-img">
                     <p>Basic Command</p>
             </div>
-            <div class="medal-slot" id="badge-engineer-basic-tank" data-requirement="BF2 Requirement: Destroy 10 Tanks in a round as Engineer Class">
+            <div class="medal-slot" id="badge-engineer-basic-tank" data-requirement="BF2 Requirement: Destroy 10 Tanks in a round ">
                 <span class="badge-count" id="anti-tank-count">0</span> 
                 <img src="assets/anti_tank_badge.png" class="medal-img" id="anti-tank-badge-img">
                 <p>Basic Anti-Tank</p>
-        </div>
+            </div>
         </div>
     
         <hr class="section-divider">
@@ -191,7 +196,7 @@
             <h2 class="section-title">LEGACY MEDALS</h2>
             <div class="award-grid">
                 <!-- Your Medal Blocks Go Here -->
-                <div class="medal-slot" id="medal-infantry" data-requirement="Combat Infantry: 3 Combat Ribbons (Tier 3)">
+                <div class="medal-slot" id="medal-infantry" data-requirement="Combat Infantry: Reach 200 total hours of career playtime">
                     <img src="assets/infantry_medal.png" class="medal-img" id="infantry-img">
                     <p>Combat Infantry</p>
                 </div>
@@ -272,15 +277,18 @@ function applyStatsToMedals(data) {
 
     // 3. THE UPDATED REQS MAP (Using your exact JSON field names)
     const REQS = {
-        'assault-badge-img': { val: s.kw_kit_assault || 0, goal: 5 },
-        'engineer-combat-badge-img': { val: s.kw_kit_engineer || 0, goal: 10 },
+        'assault-badge-img': { val: s.kills_assault_inround_cb || 0, goal: 5 },
+        'engineer-combat-badge-img': { val: s.kills_engineer_inround_cb || 0, goal: 10 },
         'engineer-basic-badge-img': { val: s.repair_ass_total || 0, goal: 5 },
         'support-badge-img': { val: s.kw_kit_support || 0, goal: 5 },
-        'medic-badge-img': { val: s.Revives_Teammates_Total || 0, goal: 10 },
+        'medic-badge-img': { val: s.kills_support_inround_cb || 0, goal: 10 },
+        'vet-medic-badge-img': { val: s.kills_support_inround_cb || 0, goal: 20 },
         'command-badge-img': { val: s.objective_captured_total || 0, goal: 40 },
-        'anti-tank-badge-img': { val: s.destroyed_veh_total || 0, goal: 10 },
-
-        'infantry-img': { val: s.Kills_Total || 0, goal: 1000 },
+        'anti-tank-badge-img': { val: s.destroy_heav_veh_inround_cb || 0, goal: 10 },
+        'infantry-img': { 
+         val: ((s.tp_kit_assault || 0) + (s.tp_kit_support || 0) + (s.tp_kit_engineer || 0) + (s.tp_kit_recon || 0)) / 3600, 
+         goal: 200 
+    },
         'naval-cross-img': { val: (s.tp_kit_assault || 0) / 3600, goal: 100 },
         'golden-scimitar-img': { val: (s.tp_kit_support || 0) / 3600, goal: 100 },
         'pax-medal-img': { val: (s.tp_kit_recon || 0) / 3600, goal: 100 }

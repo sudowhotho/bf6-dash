@@ -132,7 +132,7 @@
 
     <div class="dashboard-container">
         <div id="player-header" style="margin-bottom: 30px; padding: 20px; border: 1px solid #00d4ff; background: rgba(0, 212, 255, 0.05); display: none;">
-            <h2 id="player-name" style="margin: 0; color: #00d4ff; text-transform: uppercase;">PLAYER NAME</h2>
+            <h2 id="display-name" style="margin: 0; color: #00d4ff; text-transform: uppercase;">PLAYER NAME</h2>
             <div style="display: flex; justify-content: center; gap: 40px; margin-top: 10px;">
                 <div>
                     <p style="color: #888; font-size: 12px; margin: 0;">CURRENT RANK</p>
@@ -266,11 +266,11 @@ function applyStatsToMedals(data) {
     if (header && profile) {
     header.style.display = 'block';
     // Use the name from the API, falling back to the entered ID if missing
-    document.getElementById('player-name').innerText = profile.userName || "Unknown Soldier";
+    document.getElementById('display-name').innerText = data.userName || data.name || "PLAYER";
     // Use the rank title from the profile
-    document.getElementById('player-rank').innerText = profile.rankName || "Private";
+    document.getElementById('player-rank').innerText = profile.rankName || "PRIVATE";
     // Use the numerical rank/level from the playerCard
-    document.getElementById('player-level').innerText = profile.rank || "0";
+    document.getElementById('player-level').innerText = profile.playerCard.rank || "0";
 }
 
     // 2. CONVERT THE ARRAY INTO A SEARCHABLE MAP

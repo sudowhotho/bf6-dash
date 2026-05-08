@@ -232,7 +232,8 @@
     try {
         // Updated BF6 Endpoint (2026 Stable version)
         // Updated code to match your working URL
-        const apiURL = `https://api.gametools.network/bf6/profile/?name=${encodeURIComponent(psnId)}&platform=ps5&skip_battlelog=true&lang=en-us`;
+const platform = "ps4"; 
+const apiURL = `https://api.gametools.network/bf6/stats/?name=${psnId}&platform=ps4`;
         const response = await fetch(`https://corsproxy.io/?${encodeURIComponent(apiURL)}`);
         
         if (!response.ok) throw new Error("ID not found or Private Profile");
@@ -256,7 +257,7 @@ function applyStatsToMedals(data) {
     if (header && profile) {
     header.style.display = 'block';
     // Use the name from the API, falling back to the entered ID if missing
-    document.getElementById('display-name').innerText = data.userName || data.name || "PLAYER";
+    document.getElementById('display-name').innerText = data.userName || psnId;
     // Use the rank title from the profile
     document.getElementById('player-rank').innerText = profile.rankName || "PRIVATE";
     // Use the numerical rank/level from the playerCard
@@ -275,10 +276,10 @@ function applyStatsToMedals(data) {
         'assault-badge-img': { val: s.kw_kit_assault || 0, goal: 5 },
         'engineer-combat-badge-img': { val: s.kw_kit_engineer || 0, goal: 10 },
         'engineer-basic-badge-img': { val: s.repair_ass_total || 0, goal: 5 },
-        'support-badge-img': { val: s.kw_kit_support || 0, goal: 5 },
+        'support-badge-img': { val: s.dmg_healed_total || 0, goal: 5 },
         'medic-badge-img': { val: s.Revives_Teammates_Total || 0, goal: 10 },
-        'command-badge-img': { val: s.objective_captured_total || 0, goal: 40 },
-        'anti-tank-badge-img': { val: s.destroyed_veh_total || 0, goal: 10 },
+        'command-badge-img': { val: s.Obj_Captured_Total || 0, goal: 40 },
+        'anti-tank-badge-img': { val: s.Destroyed_Veh_Total || 0, goal: 10 },
 
         'infantry-img': { val: s.Kills_Total || 0, goal: 1000 },
         'naval-cross-img': { val: (s.tp_kit_assault || 0) / 3600, goal: 100 },

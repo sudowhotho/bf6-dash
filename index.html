@@ -181,7 +181,7 @@
                 <span class="badge-count" id="anti-tank-count">0</span> 
                 <img src="assets/anti_tank_badge.png" class="medal-img" id="anti-tank-badge-img">
                 <p>Basic Anti-Tank</p>
-            </div>
+        </div>
         </div>
     
         <hr class="section-divider">
@@ -191,7 +191,7 @@
             <h2 class="section-title">LEGACY MEDALS</h2>
             <div class="award-grid">
                 <!-- Your Medal Blocks Go Here -->
-                <div class="medal-slot" id="medal-infantry" data-requirement=""Combat Infantry: Reach 200 total hours of career playtime">
+                <div class="medal-slot" id="medal-infantry" data-requirement="Combat Infantry: 3 Combat Ribbons (Tier 3)">
                     <img src="assets/infantry_medal.png" class="medal-img" id="infantry-img">
                     <p>Combat Infantry</p>
                 </div>
@@ -279,10 +279,8 @@ function applyStatsToMedals(data) {
         'medic-badge-img': { val: s.Revives_Teammates_Total || 0, goal: 10 },
         'command-badge-img': { val: s.objective_captured_total || 0, goal: 40 },
         'anti-tank-badge-img': { val: s.destroyed_veh_total || 0, goal: 10 },
-        'infantry-img': { 
-         val: ((s.tp_kit_assault || 0) + (s.tp_kit_support || 0) + (s.tp_kit_engineer || 0) + (s.tp_kit_recon || 0)) / 3600, 
-         goal: 200 
-    },
+
+        'infantry-img': { val: s.Kills_Total || 0, goal: 1000 },
         'naval-cross-img': { val: (s.tp_kit_assault || 0) / 3600, goal: 100 },
         'golden-scimitar-img': { val: (s.tp_kit_support || 0) / 3600, goal: 100 },
         'pax-medal-img': { val: (s.tp_kit_recon || 0) / 3600, goal: 100 }

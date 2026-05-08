@@ -119,6 +119,23 @@
     background: linear-gradient(to right, #333, transparent);
     margin: 40px 0;
 }
+
+.progress-bg {
+    width: 100%;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid #444;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    width: 0%; /* Start at 0 */
+    height: 100%;
+    background: linear-gradient(90deg, #0055ff, #00d4ff);
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    transition: width 2s cubic-bezier(0.4, 0, 0.2, 1);
+}
     </style>
 </head>
 <body>
@@ -131,19 +148,20 @@
     </div>
 
     <div class="dashboard-container">
-        <div id="player-header" style="margin-bottom: 30px; padding: 20px; border: 1px solid #00d4ff; background: rgba(0, 212, 255, 0.05); display: none;">
-            <h2 id="display-name" style="margin: 0; color: #00d4ff; text-transform: uppercase;">PLAYER NAME</h2>
-            <div style="display: flex; justify-content: center; gap: 40px; margin-top: 10px;">
-                <div>
-                    <p style="color: #888; font-size: 12px; margin: 0;">CURRENT RANK</p>
-                    <h3 id="player-rank" style="margin: 5px 0; font-size: 24px;">--</h3>
-                </div>
-                <div>
-                    <p style="color: #888; font-size: 12px; margin: 0;">LEVEL</p>
-                    <h3 id="player-level" style="margin: 5px 0; font-size: 24px;">--</h3>
-                </div>
-            </div>
+        <div id="player-header" style="display: none; margin-bottom: 30px; padding: 20px; border: 1px solid #333; background: rgba(0,0,0,0.5);">
+    <h2 id="display-name" style="margin: 0; color: #00d4ff;">PLAYER</h2>
+    <p style="margin: 5px 0;">Rank: <span id="player-rank">---</span> | Level: <span id="player-level">0</span></p>
+    
+    <div id="level-progress-container" style="margin-top: 15px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px;">
+            <span style="color: #888;">Rank Progress</span>
+            <span id="progress-percent" style="color: #00d4ff;">0%</span>
         </div>
+        <div class="progress-bg">
+            <div id="level-bar" class="progress-fill"></div>
+        </div>
+    </div>
+</div>
         <h1>SERVICE RECORD</h1>
     
         <!-- SECTION 1: COMBAT BADGES -->
@@ -267,17 +285,34 @@
 
 function applyStatsToMedals(data) {
     const profile = data.playerProfiles[0];
+    // REPLACEMENT CODE
     const header = document.getElementById('player-header');
-    
-    if (header && profile) {
-    header.style.display = 'block';
-    // Use the name from the API, falling back to the entered ID if missing
-    document.getElementById('display-name').innerText = data.userName || data.name || "PLAYER";
-    // Use the rank title from the profile
-    document.getElementById('player-rank').innerText = profile.rankName || "PRIVATE";
-    // Use the numerical rank/level from the playerCard
-    document.getElementById('player-level').innerText = profile.playerCard.rank || "0";
-}
+    if (header && s) {
+        header.style.display = 'block';
+        
+        // 1. Basic Info
+        document.getElementById('display-name').innerText = s.userName || "SOLDIER";
+        document.getElementById('player-rank').innerText = s.rankName || "RECRUIT";
+        document.getElementById('player-level').innerText = s.rank || "0";
+
+        // 2. XP Math for Progress Bar
+        const currentXP = Number(s.currentXp) || 0;
+        const levelStartXP = Number(s.levelXp) || 0;
+        const nextLevelXP = Number(s.nextLevelXp) || 1;
+
+        // Calculate %: (Current - Start) / (Target - Start)
+        const progress = ((currentXP - levelStartXP) / (nextLevelXP - levelStartXP)) * 100;
+        const clampedProgress = Math.max(0, Math.min(100, progress));
+
+        // 3. Update the Bar and the Number
+        const bar = document.getElementById('level-bar');
+        const percentText = document.getElementById('progress-percent');
+
+        if (bar && percentText) {
+            bar.style.width = clampedProgress + "%";
+            percentText.innerText = Math.floor(clampedProgress) + "%";
+        }
+    }
 
     // 2. CONVERT THE ARRAY INTO A SEARCHABLE MAP
     // This turns the long list into a quick-reference "dictionary"
@@ -313,6 +348,7 @@ function applyStatsToMedals(data) {
         'golden-scimitar-img': { val: (s.tp_kit_support || 0) / 3600, goal: 100 },
         'pax-medal-img': { val: (s.tp_kit_recon || 0) / 3600, goal: 100 }
         };
+        
 
     // 4. UI UPDATE LOOP
     for (const [id, req] of Object.entries(REQS)) {

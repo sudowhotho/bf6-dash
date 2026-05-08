@@ -35,6 +35,7 @@
             position: relative;
             display: inline-block;
             cursor: help;
+            overflow: visible; /* Added to ensure tooltip isn't clipped */
         }
 
         .medal-img {
@@ -57,30 +58,34 @@
         .medal-img.earned:hover {
             transform: scale(1.15);
             filter: drop-shadow(0 0 20px var(--glow-color));
+            z-index: 1; /* Keeps the image at a lower stack than the tooltip */
         }
 
         /* Custom Tooltip Logic */
         .medal-slot::after {
-            content: attr(data-requirement); /* Pulls text from HTML attribute */
+            content: attr(data-requirement);
             position: absolute;
-            bottom: -50px;
+            bottom: -60px; /* Increased from -50px to give more room for scaled images */
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             color: #ccc;
-            padding: 5px 10px;
+            padding: 8px 12px;
             border-radius: 4px;
             font-size: 12px;
             white-space: nowrap;
             opacity: 0;
-            transition: opacity 0.3s;
+            visibility: hidden; /* Use visibility + opacity for cleaner transitions */
+            transition: opacity 0.3s, visibility 0.3s;
             pointer-events: none;
             border: 1px solid var(--glow-color);
-        }
+            z-index: 100; /* Forces tooltip to the front of the stack */
+}
 
-        .medal-slot:hover::after {
-            opacity: 1;
-        }
+.medal-slot:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
 
         /* Layout for the sections */
 .award-section {

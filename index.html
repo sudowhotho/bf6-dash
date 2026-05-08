@@ -153,7 +153,7 @@
                 </div>
                 <!-- Add more badges here -->
                 <div class="medal-slot" id="badge-engineer-combat" data-requirement="BF2 Requirement: 10 Kills in a round as Engineer Class">
-                    <span class="badge-count" id="engineer-combat-count">0</span> 
+                    <span class="badge-count" id="engineer-combat-badge-count">0</span> 
                     <img src="assets/engineer_combat.png" class="medal-img" id="engineer-combat-badge-img">
                     <p>Basic Engineer Combat</p>
                 </div>
@@ -178,7 +178,7 @@
                     <p>Basic Command</p>
             </div>
             <div class="medal-slot" id="badge-engineer-basic-tank" data-requirement="BF2 Requirement: Destroy 10 Tanks in a round as Engineer Class">
-                <span class="badge-count" id="anti-tank-count">0</span> 
+                <span class="badge-count" id="anti-tank-badge-count">0</span> 
                 <img src="assets/anti_tank_badge.png" class="medal-img" id="anti-tank-badge-img">
                 <p>Basic Anti-Tank</p>
             </div>
@@ -191,7 +191,7 @@
             <h2 class="section-title">LEGACY MEDALS</h2>
             <div class="award-grid">
                 <!-- Your Medal Blocks Go Here -->
-                <div class="medal-slot" id="medal-infantry" data-requirement=""Combat Infantry: Reach 200 total hours of career playtime">
+                <div class="medal-slot" id="medal-infantry" data-requirement="Combat Infantry: Reach 200 total hours of career playtime">
                     <img src="assets/infantry_medal.png" class="medal-img" id="infantry-img">
                     <p>Combat Infantry</p>
                 </div>
@@ -272,13 +272,14 @@ function applyStatsToMedals(data) {
 
     // 3. THE UPDATED REQS MAP (Using your exact JSON field names)
     const REQS = {
-        'assault-badge-img': { val: s.kw_kit_assault || 0, goal: 5 },
-        'engineer-combat-badge-img': { val: s.kw_kit_engineer || 0, goal: 10 },
+        'assault-badge-img': { val: s.kills_assault_inround_cb || 0, goal: 5 },
+        'engineer-combat-badge-img': { val: s.kills_engineer_inround_cb || 0, goal: 10 },
         'engineer-basic-badge-img': { val: s.repair_ass_total || 0, goal: 5 },
         'support-badge-img': { val: s.kw_kit_support || 0, goal: 5 },
-        'medic-badge-img': { val: s.Revives_Teammates_Total || 0, goal: 10 },
+        'medic-badge-img': { val: s.kills_support_inround_cb || 0, goal: 10 },
+        'vet-medic-badge-img': { val: s.kills_support_inround_cb || 0, goal: 20 },
         'command-badge-img': { val: s.objective_captured_total || 0, goal: 40 },
-        'anti-tank-badge-img': { val: s.destroyed_veh_total || 0, goal: 10 },
+        'anti-tank-badge-img': { val: s.destroy_heav_veh_inround_cb || 0, goal: 10 },
         'infantry-img': { 
          val: ((s.tp_kit_assault || 0) + (s.tp_kit_support || 0) + (s.tp_kit_engineer || 0) + (s.tp_kit_recon || 0)) / 3600, 
          goal: 200 

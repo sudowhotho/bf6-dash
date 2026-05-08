@@ -151,10 +151,11 @@
             <h2 class="section-title">COMBAT BADGES</h2>
             <div class="award-grid">
                 <!-- Your Badge Blocks Go Here -->
-                <div class="medal-slot" id="badge-assault-basic" data-requirement="BF2 Requirement: 5 Kills in a round as Assault Class">
+                <div class="medal-slot" id="badge-assault-basic" 
+                    data-requirement="Assault Combat: Basic (5K + 0.2h), Veteran (20K + 15h), Expert (40K + 100h)">
                     <span class="badge-count" id="assault-count">0</span> 
-                    <img src="assets/assault_badge.png" class="medal-img" id="assault-badge-img">
-                    <p>Basic Assault Combat</p>
+                    <img src="assets/assault_badge_bronze.png" class="medal-img" id="assault-badge-img">
+                    <p>Assault Combat</p>
                 </div>
                 <!-- Add more badges here -->
                 <div class="medal-slot" id="badge-engineer-combat" data-requirement="BF2 Requirement: 10 Kills in a round as Engineer Class">
@@ -287,7 +288,11 @@ function applyStatsToMedals(data) {
 
     // 3. THE UPDATED REQS MAP (Using your exact JSON field names)
     const REQS = {
-        'assault-badge-img': { val: s.kills_assault_inround_cb || 0, goal: 5 },
+        'assault-badge-img': { 
+            val_kills: s.kills_assault_inround_cb || 0,
+            val_time: (s.tp_kit_assault || 0) / 3600, // Converts seconds to hours
+            isTiered: true 
+        },
         'engineer-combat-badge-img': { val: s.kills_engineer_inround_cb || 0, goal: 10 },
         'engineer-basic-badge-img': { val: s.assists_repair_inround_cb || 0, goal: 5 },
         'support-badge-img': { val: s.revives_inround_cb || 0, goal: 5 },
@@ -338,6 +343,33 @@ function applyStatsToMedals(data) {
             
             const countSpan = document.getElementById('expl-ord-count');
             if (countSpan) countSpan.innerText = Math.floor(kills);
+            
+            // --- Handle Tiered Assault Badge ---
+            if (req.isTiered && id === 'assault-badge-img') {
+                const kills = req.val_kills;
+                const hours = req.val_time;
+                let tier = "";
+
+                // Thresholds: Expert (40K or 100h), Veteran (20K or 15h), Basic (5K or 0.2h)
+                if (kills >= 40 && hours >= 100) {
+                    tier = "expert";
+                    img.src = "assets/assault_badge_gold.png";
+                } else if (kills >= 20 && hours >= 15) {
+                    tier = "veteran";
+                    img.src = "assets/assault_badge_silver.png";
+                } else if (kills >= 5 && hours >= 0.2) {
+                    tier = "basic";
+                    img.src = "assets/assault_badge_bronze.png";
+                }
+
+                if (tier !== "") {
+                    img.classList.add('earned');
+                    if (tier === "expert") img.style.filter += " drop-shadow(0 0 10px gold)";
+                }
+                
+                const countSpan = document.getElementById('assault-count');
+                if (countSpan) countSpan.innerText = Math.floor(kills);
+            }
 
         } else {
             // --- Handle Standard Badges ---

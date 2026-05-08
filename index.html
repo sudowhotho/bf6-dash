@@ -232,8 +232,8 @@
     try {
         // Updated BF6 Endpoint (2026 Stable version)
         // Updated code to match your working URL
-const platform = "ps4"; 
-const apiURL = `https://api.gametools.network/bf6/stats/?name=${psnId}&platform=ps4`;
+// We use /profile/ and ps5 as confirmed by your working curl command
+const apiURL = `https://api.gametools.network/bf6/profile/?name=${encodeURIComponent(psnId)}&platform=ps5&skip_battlelog=true&lang=en-us`;
         const response = await fetch(`https://corsproxy.io/?${encodeURIComponent(apiURL)}`);
         
         if (!response.ok) throw new Error("ID not found or Private Profile");

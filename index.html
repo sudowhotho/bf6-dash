@@ -191,6 +191,11 @@
                 <span class="badge-count" id="anti-tank-badge-count">0</span> 
                 <img src="assets/anti_tank_badge.png" class="medal-img" id="anti-tank-badge-img">
                 <p>Basic Anti-Tank</p>
+            </div>     
+            <div class="medal-slot" id="badge-explosive-ordnance" 
+                data-requirement="Explosive Ordnance: Basic (5K/600D), Veteran (20K/2500D), Expert (30K/5000D)">
+                <span class="badge-count" id="expl-ord-count">0</span> <img src="assets/explosive_ordnance_bronze.png" class="medal-img" id="expl-ord-badge-img">
+                <p>Explosive Ordnance</p>
             </div>
         </div>
     
@@ -290,25 +295,63 @@ function applyStatsToMedals(data) {
         'vet-medic-badge-img': { val: s.kills_support_inround_cb || 0, goal: 20 },
         'command-badge-img': { val: s.cap_obj_inround_cb || 0, goal: 40 },
         'anti-tank-badge-img': { val: s.destroy_heav_veh_inround_cb || 0, goal: 10 },
+        'expl-ord-badge-img': { 
+         val_kills: (s.kills_grenade_inround_cb || 0) + (s.Kills_GLaunchers_Assault_InRound_cb || 0),
+         val_dmg: (s.dmg_toveh_eng_lanch_inround_cb || 0) + (s.dmg_toveh_eng_mines_inround_cb || 0),
+         isTiered: true // Custom flag for our logic below
+        },
         'infantry-img': { 
          val: ((s.tp_kit_assault || 0) + (s.tp_kit_support || 0) + (s.tp_kit_engineer || 0) + (s.tp_kit_recon || 0)) / 3600, 
          goal: 200 
-    },
+        },
         'naval-cross-img': { val: (s.tp_kit_assault || 0) / 3600, goal: 100 },
         'golden-scimitar-img': { val: (s.tp_kit_support || 0) / 3600, goal: 100 },
         'pax-medal-img': { val: (s.tp_kit_recon || 0) / 3600, goal: 100 }
-    };
+        };
 
     // 4. UI UPDATE LOOP
     for (const [id, req] of Object.entries(REQS)) {
         const img = document.getElementById(id);
-        const countSpan = document.getElementById(id.replace('-img', '-count').replace('-badge-img', '-count'));
-        
-        if (countSpan) countSpan.innerText = Math.floor(req.val);
-        if (img && req.val >= req.goal) img.classList.add('earned');
-    }
-}
-    </script>
+        if (!img) continue;
 
+        // --- Handle Tiered Explosive Ordnance ---
+        if (req.isTiered && id === 'expl-ord-badge-img') {
+            const kills = req.val_kills;
+            const dmg = req.val_dmg;
+            let tier = "";
+
+            if (kills >= 30 || dmg >= 5000) {
+                tier = "expert";
+                img.src = "assets/explosive_ordnance_gold.png";
+            } else if (kills >= 20 || dmg >= 2500) {
+                tier = "veteran";
+                img.src = "assets/explosive_ordnance_silver.png";
+            } else if (kills >= 5 || dmg >= 600) {
+                tier = "basic";
+                img.src = "assets/explosive_ordnance_bronze.png";
+            }
+
+            if (tier !== "") {
+                img.classList.add('earned');
+                if (tier === "expert") img.style.filter += " drop-shadow(0 0 10px gold)";
+            }
+            
+            const countSpan = document.getElementById('expl-ord-count');
+            if (countSpan) countSpan.innerText = Math.floor(kills);
+
+        } else {
+            // --- Handle Standard Badges ---
+            const baseId = id.replace('-badge-img', '').replace('-img', '');
+            const countSpan = document.getElementById(`${baseId}-count`) || 
+                             document.getElementById(id.replace('-img', '-count').replace('-badge-img', '-count'));
+            
+            if (countSpan) countSpan.innerText = Math.floor(req.val);
+            if (req.val >= req.goal) {
+                img.classList.add('earned');
+            }
+        } // Closes the 'else'
+    } // Closes the 'for' loop
+} // Closes applyStatsToMedals function
+</script>
 </body>
 </html>

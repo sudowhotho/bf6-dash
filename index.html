@@ -17,10 +17,11 @@
             font-family: 'Segoe UI', sans-serif;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
+            align-items:flex-start; /* Allows the dashboard to start at the top */
+            min-height: 100vh; /* Ensures the background covers the whole page */
             margin: 0;
-        }
+            padding: 40px 0; /* Adds spacing so the content doesn't touch the screen edges */
+}
 
         .dashboard-container {
             text-align: center;
@@ -125,6 +126,19 @@
     </div>
 
     <div class="dashboard-container">
+        <div id="player-header" style="margin-bottom: 30px; padding: 20px; border: 1px solid #00d4ff; background: rgba(0, 212, 255, 0.05); display: none;">
+            <h2 id="display-name" style="margin: 0; color: #00d4ff; text-transform: uppercase;">PLAYER NAME</h2>
+            <div style="display: flex; justify-content: center; gap: 40px; margin-top: 10px;">
+                <div>
+                    <p style="color: #888; font-size: 12px; margin: 0;">CURRENT RANK</p>
+                    <h3 id="player-rank" style="margin: 5px 0; font-size: 24px;">--</h3>
+                </div>
+                <div>
+                    <p style="color: #888; font-size: 12px; margin: 0;">LEVEL</p>
+                    <h3 id="player-level" style="margin: 5px 0; font-size: 24px;">--</h3>
+                </div>
+            </div>
+        </div>
         <h1>SERVICE RECORD</h1>
     
         <!-- SECTION 1: COMBAT BADGES -->
@@ -236,13 +250,22 @@
 }
 
 function applyStatsToMedals(data) {
-    // 1. LOG THE DATA: Press F12 in your browser to see the "Raw API Response"
-    console.log("Raw API Response:", data);
+    // 1. POPULATE PLAYER HEADER (NEW)
+    // This reveals the box and fills it with your actual BF6 account info
+    const header = document.getElementById('player-header');
+    if (header) {
+        header.style.display = 'block';
+        document.getElementById('display-name').innerText = data.userName || data.name || "PLAYER";
+        document.getElementById('player-rank').innerText = data.rankName || data.rank || "PRIVATE";
+        document.getElementById('player-level').innerText = data.level || "0";
+    }
 
-    // 2. DATA SOURCE: The API often nests stats in a 'stats' or 'player' object
+    // 2. DATA SOURCE
+    // The API often nests stats in a 'stats' object
     const s = data.stats || data;
 
-    // 3. THE REQS MAP: Updated for BF6 field names
+    // 3. THE REQS MAP
+    // This maps your HTML image IDs to the specific stats from the API
     const REQS = {
         // Badges
         'assault-badge-img': { val: s.assaultKills || s.killsAssault || 0, goal: 5 },
@@ -270,10 +293,9 @@ function applyStatsToMedals(data) {
             countSpan.innerText = Math.floor(req.val);
         }
 
-        // Apply the CSS Glow/Color
+        // Apply the CSS Glow/Color if the goal is met
         if (img && req.val >= req.goal) {
             img.classList.add('earned');
-            console.log(`UNLOCKED: ${id}`);
         }
     }
 }

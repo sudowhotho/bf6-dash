@@ -319,70 +319,56 @@ function applyStatsToMedals(data) {
         const img = document.getElementById(id);
         if (!img) continue;
 
-        // --- Handle Tiered Explosive Ordnance ---
-        if (req.isTiered && id === 'expl-ord-badge-img') {
-            const kills = req.val_kills;
-            const dmg = req.val_dmg;
+        // --- TIERED LOGIC: EXPLOSIVE ORDNANCE ---
+        if (id === 'expl-ord-badge-img') {
+            const kills = Number(req.val_kills) || 0;
+            const dmg = Number(req.val_dmg) || 0;
             let tier = "";
 
-            if (kills >= 30 || dmg >= 5000) {
-                tier = "expert";
-                img.src = "assets/explosive_ordnance_gold.png";
-            } else if (kills >= 20 || dmg >= 2500) {
-                tier = "veteran";
-                img.src = "assets/explosive_ordnance_silver.png";
-            } else if (kills >= 5 || dmg >= 600) {
-                tier = "basic";
-                img.src = "assets/explosive_ordnance_bronze.png";
-            }
+            if (kills >= 30 || dmg >= 5000) tier = "expert";
+            else if (kills >= 20 || dmg >= 2500) tier = "veteran";
+            else if (kills >= 5 || dmg >= 600) tier = "basic";
 
             if (tier !== "") {
+                img.src = `assets/explosive_ordnance_${tier === "expert" ? "gold" : tier === "veteran" ? "silver" : "bronze"}.png`;
                 img.classList.add('earned');
                 if (tier === "expert") img.style.filter += " drop-shadow(0 0 10px gold)";
             }
-            
             const countSpan = document.getElementById('expl-ord-count');
             if (countSpan) countSpan.innerText = Math.floor(kills);
-            
-            // --- Handle Tiered Assault Badge ---
-            if (req.isTiered && id === 'assault-badge-img') {
-                const kills = req.val_kills;
-                const hours = req.val_time;
-                let tier = "";
 
-                // Thresholds: Expert (40K or 100h), Veteran (20K or 15h), Basic (5K or 0.2h)
-                if (kills >= 40 && hours >= 100) {
-                    tier = "expert";
-                    img.src = "assets/assault_badge_gold.png";
-                } else if (kills >= 20 && hours >= 15) {
-                    tier = "veteran";
-                    img.src = "assets/assault_badge_silver.png";
-                } else if (kills >= 5 && hours >= 0.2) {
-                    tier = "basic";
-                    img.src = "assets/assault_badge_bronze.png";
-                }
+        // --- TIERED LOGIC: ASSAULT BADGE ---
+        } else if (id === 'assault-badge-img') {
+            const kills = Number(req.val_kills) || 0;
+            const hours = Number(req.val_time) || 0;
+            let tier = "";
 
-                if (tier !== "") {
-                    img.classList.add('earned');
-                    if (tier === "expert") img.style.filter += " drop-shadow(0 0 10px gold)";
-                }
-                
-                const countSpan = document.getElementById('assault-count');
-                if (countSpan) countSpan.innerText = Math.floor(kills);
+            // AND GATE: 40K + 100H
+            if (kills >= 40 && hours >= 100) tier = "expert";
+            else if (kills >= 20 && hours >= 15) tier = "veteran";
+            else if (kills >= 5 && hours >= 0.2) tier = "basic";
+
+            if (tier !== "") {
+                img.src = `assets/assault_badge_${tier === "expert" ? "gold" : tier === "veteran" ? "silver" : "bronze"}.png`;
+                img.classList.add('earned');
+                if (tier === "expert") img.style.filter += " drop-shadow(0 0 10px gold)";
             }
+            const countSpan = document.getElementById('assault-count');
+            if (countSpan) countSpan.innerText = Math.floor(kills);
 
+        // --- STANDARD BADGES & MEDALS ---
         } else {
-            // --- Handle Standard Badges ---
+            const val = Number(req.val) || 0;
             const baseId = id.replace('-badge-img', '').replace('-img', '');
             const countSpan = document.getElementById(`${baseId}-count`) || 
                              document.getElementById(id.replace('-img', '-count').replace('-badge-img', '-count'));
             
-            if (countSpan) countSpan.innerText = Math.floor(req.val);
-            if (req.val >= req.goal) {
+            if (countSpan) countSpan.innerText = Math.floor(val);
+            if (val >= req.goal) {
                 img.classList.add('earned');
             }
-        } // Closes the 'else'
-    } // Closes the 'for' loop
+        }
+    }
 } // Closes applyStatsToMedals function
 </script>
 </body>

@@ -308,9 +308,9 @@ function applyStatsToMedals(s) {
         document.getElementById('player-rank').innerText = s.rankName || "RECRUIT";
         document.getElementById('player-level').innerText = s.rank || "0";
 
-        const currentXP = Number(s.currentXp) || 0;
-        const levelStartXP = Number(s.levelXp) || 0;
-        const nextLevelXP = Number(s.nextLevelXp) || 1;
+        const currentXP = Number(s.currentxp) || 0;
+        const levelStartXP = Number(s.levelxp) || 0;
+        const nextLevelXP = Number(s.nextLevelxp) || 1;
         const progress = ((currentXP - levelStartXP) / (nextLevelXP - levelStartXP)) * 100;
 
         const bar = document.getElementById('level-bar');
